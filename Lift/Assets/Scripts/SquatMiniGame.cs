@@ -40,12 +40,14 @@ public class SquatMiniGame : MonoBehaviour, IExerciseMiniGame {
     }
     public void DoExercise()
     {
-        
+        // Could do a while loop here. 
+        // Example: While IsSquatting == true; then we can set the bool for the descent and concentric.
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
             animator.Play("SquatDescent");
             Debug.Log("Player started Squat");
+            Debug.Log($"Min {MinimumTime}, Max {MaximumTime}");
             IsSquatting = true;
             animator.SetBool("IsSquattingDescent",true);
             squatTimer = 0f;
@@ -73,6 +75,8 @@ public class SquatMiniGame : MonoBehaviour, IExerciseMiniGame {
                 Debug.Log($"Squat Time Released: {squatTimer}");
                 Debug.Log($"Min {MinimumTime}, Max {MaximumTime}");
                 animator.SetBool("PassedDescent", true);
+                RepsCompleted++;
+                UpdateText();
             }
             else
             {
