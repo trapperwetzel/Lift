@@ -44,28 +44,32 @@ public class SquatMiniGame : MonoBehaviour, IExerciseMiniGame {
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            Debug.Log("Player initaited Squat");
+            animator.Play("SquatDescent");
+            Debug.Log("Player started Squat");
             IsSquatting = true;
-            squatTimer = 0f;
             animator.SetBool("IsSquattingDescent",true);
-            
-            
+            squatTimer = 0f;
+
             //UpdateText(); // Observer Pattern in the future 
-            
+
         }
         if(Input.GetKey(KeyCode.Space) && IsSquatting == true)
         {
 
+            Debug.Log(squatTimer);
+
             squatTimer += Time.deltaTime;
             
         }
+        
         if (Input.GetKeyUp(KeyCode.Space))
         {
             Debug.Log("Squat Released");
+            
             animator.SetBool("IsSquattingDescent", false);
 
         }
-
+        
 
 
     }
