@@ -54,6 +54,9 @@ public class SquatMiniGameTest : MonoBehaviour
 
 }
 
+
+
+
 [System.Serializable]
 public class CoolDown {
     [SerializeField] private float cooldownTime;
