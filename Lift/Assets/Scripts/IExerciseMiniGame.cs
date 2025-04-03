@@ -8,7 +8,7 @@ public interface IExerciseMiniGame
 
     void DoExercise();
 
-    bool IsSuccessful();
+    bool IsSuccessful(float timer);
 
     void EndExercise(); 
    

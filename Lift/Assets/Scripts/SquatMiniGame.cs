@@ -57,7 +57,7 @@ public class SquatMiniGame : MonoBehaviour, IExerciseMiniGame {
         {
 
             Debug.Log(squatTimer);
-
+            animator.SetBool("PassedDescent", false);
             squatTimer += Time.deltaTime;
             
         }
@@ -65,17 +65,35 @@ public class SquatMiniGame : MonoBehaviour, IExerciseMiniGame {
         if (Input.GetKeyUp(KeyCode.Space))
         {
             Debug.Log("Squat Released");
-            
+            Debug.Log($"Squat Time Released: {squatTimer}");
             animator.SetBool("IsSquattingDescent", false);
+            if (IsSuccessful(squatTimer))
+            {
+                Debug.Log("Squat passed!");
+                Debug.Log($"Squat Time Released: {squatTimer}");
+                Debug.Log($"Min {MinimumTime}, Max {MaximumTime}");
+                animator.SetBool("PassedDescent", true);
+            }
+            else
+            {
+                animator.SetBool("PassedDescent", false);
+            }
 
         }
         
 
 
     }
-    public bool IsSuccessful()
+    public bool IsSuccessful(float squatTime)
     {
-        return true;
+        if(squatTime > MinimumTime && squatTime < MaximumTime)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     
     }
 
