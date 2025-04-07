@@ -3,45 +3,46 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class SquatMiniGame : MonoBehaviour, IExerciseMiniGame {
-    
-    public Animator animator;
+public class SquatMiniGame : IExerciseMiniGame {
+
+    public ExerciseType LiftType => ExerciseType.Squat;
+    public Animator animator { get; set; }
+
     // Serialized Fields for required Descent time (min and max time allowed)
-    [SerializeField] private float MinimumTime;
-    [SerializeField] private float MaximumTime;
-    bool IsSquatting = false;
-    float squatTimer = 0f;
-    public int RepsCompleted { get; private set; }
+    [SerializeField] private float MinimumTime = 2.1f;
+    [SerializeField] private float MaximumTime = 5f;
+    [SerializeField] public int RequiredNumberOfReps { get; set; }
+    public int RepsCompleted { get; set; }
 
-    public TextMeshProUGUI repText;
+    [SerializeField] private TextMeshProUGUI repText;
 
+
+    private bool IsSquatting = false;
+    private float squatTimer = 0f;
     
 
+    public SquatMiniGame(Animator animator, float minimumTime, float maximumTime,int aRequiredNumberOfReps, TextMeshProUGUI repsText)
+    {
+        this.animator = animator;
+        MinimumTime = minimumTime;
+        MaximumTime = maximumTime;
+        RequiredNumberOfReps = aRequiredNumberOfReps;
+        repText = repsText;
+    } 
+
     
-
-    void Start()
-    {
-        if (animator == null)
-        {
-            animator = GetComponent<Animator>();
-        }
-    }
-
-    public void Update()
-    {
-        DoExercise();
-    }
 
     public void StartExercise()
     {
         // Observer Pattern ** In the future ** Notify Observers
         Debug.Log("Exercise Started");
+       
 
     }
     public void DoExercise()
     {
-        // Could do a while loop here. 
-        // Example: While IsSquatting == true; then we can set the bool for the descent and concentric.
+         
+        
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -69,7 +70,7 @@ public class SquatMiniGame : MonoBehaviour, IExerciseMiniGame {
             Debug.Log("Squat Released");
             Debug.Log($"Squat Time Released: {squatTimer}");
             animator.SetBool("IsSquattingDescent", false);
-            if (IsSuccessful(squatTimer))
+            if (IsSuccessful())
             {
                 Debug.Log("Squat passed!");
                 Debug.Log($"Squat Time Released: {squatTimer}");
@@ -82,29 +83,28 @@ public class SquatMiniGame : MonoBehaviour, IExerciseMiniGame {
             {
                 animator.SetBool("PassedDescent", false);
             }
-
+            EndExercise();
         }
         
 
 
     }
-    public bool IsSuccessful(float squatTime)
+    public bool IsSuccessful()
     {
-        if(squatTime > MinimumTime && squatTime < MaximumTime)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return squatTimer > MinimumTime && squatTimer < MaximumTime;
+        
     
     }
 
     
     public void EndExercise()
     {
-
+        if(RepsCompleted == RequiredNumberOfReps)
+        {
+            Debug.Log("Set Completed!");
+            animator.Play("Idle");
+            repText.text = "Set completed! Good Job!";
+        }
     }
 
 
@@ -115,5 +115,6 @@ public class SquatMiniGame : MonoBehaviour, IExerciseMiniGame {
 
     }
 
+    public void Initialize() { }
 
 }
