@@ -12,14 +12,15 @@ public class DeadliftMiniGame : IExerciseMiniGame
     public int RepsCompleted { get; set; }
     private float MinimumTime;
     private float MaximumTime;
-    [SerializeField] private TextMeshProUGUI repText;
-    public DeadliftMiniGame(Animator animator, float minimumTime, float maximumTime, int aRequiredNumberOfReps, TextMeshProUGUI aRepText)
+    public string QualityOfLift { get; set; }
+    
+    public DeadliftMiniGame(Animator animator, float minimumTime, float maximumTime, int aRequiredNumberOfReps)
     {
         this.animator = animator;
         MinimumTime = minimumTime;
         MaximumTime = maximumTime;
         RequiredNumberOfReps = aRequiredNumberOfReps;
-        repText = aRepText;
+        
     }
 
     public void StartExercise()
@@ -41,5 +42,21 @@ public class DeadliftMiniGame : IExerciseMiniGame
     public void Initialize()
     {
 
+    }
+    private readonly List<ILiftObserver> liftobservers = new List<ILiftObserver>();
+    public void AddObserver(ILiftObserver observer)
+    {
+        if (!liftobservers.Contains(observer))
+        {
+            liftobservers.Add(observer);
+        }
+    }
+
+    public void RemoveObserver(ILiftObserver observer)
+    {
+        if (liftobservers.Contains(observer))
+        {
+            liftobservers.Remove(observer);
+        }
     }
 }

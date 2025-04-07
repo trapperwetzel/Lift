@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 
 public class BenchMiniGame : IExerciseMiniGame {
-    
+
     public Animator animator { get; set; }
     public ExerciseType LiftType => ExerciseType.Bench;
 
@@ -13,15 +13,16 @@ public class BenchMiniGame : IExerciseMiniGame {
 
     private float MinimumTime;
     private float MaximumTime;
-    [SerializeField] private TextMeshProUGUI repText;
+    public string QualityOfLift { get; set; }
 
-    public BenchMiniGame(Animator animator, float minimumTime, float maximumTime, int aRequiredNumberOfReps, TextMeshProUGUI aRepText)
+
+    public BenchMiniGame(Animator animator, float minimumTime, float maximumTime, int aRequiredNumberOfReps)
     {
         this.animator = animator;
         MinimumTime = minimumTime;
         MaximumTime = maximumTime;
         RequiredNumberOfReps = aRequiredNumberOfReps;
-        repText = aRepText;
+
     }
     public void StartExercise()
     {
@@ -43,4 +44,23 @@ public class BenchMiniGame : IExerciseMiniGame {
     {
 
     }
+    private readonly List<ILiftObserver> liftobservers = new List<ILiftObserver>();
+    public void AddObserver(ILiftObserver observer)
+    {
+        if (!liftobservers.Contains(observer))
+        {
+            liftobservers.Add(observer);
+        }
+    }
+
+    public void RemoveObserver(ILiftObserver observer)
+    {
+        if (liftobservers.Contains(observer))
+        {
+            liftobservers.Remove(observer);
+        }
+    }
+
+
 }
+

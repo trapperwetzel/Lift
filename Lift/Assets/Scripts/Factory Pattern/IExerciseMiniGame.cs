@@ -13,7 +13,7 @@ public interface IExerciseMiniGame
     int RequiredNumberOfReps { get; } // Number of Reps needed to complete the exercise.
     int RepsCompleted { get; } // Number of completed Reps
     void StartExercise(); // UI, Tips, Sounds ETC
-
+    string QualityOfLift { get; }
     void DoExercise();  // Actual Game Logic
 
     bool IsSuccessful(); // Determines if lift continues
@@ -21,6 +21,8 @@ public interface IExerciseMiniGame
     void EndExercise();
 
     void Initialize();
+    void AddObserver(ILiftObserver observer);
+    void RemoveObserver(ILiftObserver observer);
 
 }
 
