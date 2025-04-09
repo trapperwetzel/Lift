@@ -37,6 +37,8 @@ public class ExerciseMiniGameManager : MonoBehaviour
         squatUIObserver.exerciseMiniGame = currentMiniGame;
         currentMiniGame.AddObserver(squatUIObserver);
         currentMiniGame.Initialize();
+        startButton.IsDestroyed();
+
         currentMiniGame.StartExercise();
     }
 
