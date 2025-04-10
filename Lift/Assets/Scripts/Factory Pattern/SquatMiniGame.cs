@@ -14,7 +14,6 @@ public class SquatMiniGame : IExerciseMiniGame {
             liftobservers.Add(observer);
         }
     }
-
     public void RemoveObserver(ILiftObserver observer)
     {
         if (liftobservers.Contains(observer))
@@ -27,97 +26,64 @@ public class SquatMiniGame : IExerciseMiniGame {
     public Animator animator { get; set; }
 
     // Serialized Fields for required Descent time (min and max time allowed)
-    [SerializeField] private float MinimumTime = 2.1f;
-    [SerializeField] private float MaximumTime = 5f;
+    [SerializeField] public float MinimumTime { get; set; }
+    [SerializeField] public float MaximumTime { get; set; }
     [SerializeField] public int RequiredNumberOfReps { get; set; }
-
     [SerializeField] private TextMeshProUGUI RepsCompletedText;
     [SerializeField] private TextMeshProUGUI QualityOfRepText;
     [SerializeField] private TextMeshProUGUI RequiredNumberOfRepsText;
 
+    // can move this back to private
     public int RepsCompleted { get; set; }
     public string QualityOfLift { get; set; }
-    private bool IsSquatting = false;
-    private float SquatTimer = 0f;
-    private ISquatAnimationStrategy animationStrategy;
+    private ILiftState currentState;
+    
+    public float LiftTimer { get; set; }
+    public ILiftAnimationStrategy animationStrategy { get; set; }
 
     public SquatMiniGame(Animator animator, float minimumTime, float maximumTime, int aRequiredNumberOfReps)
     {
         this.animator = animator;
         MinimumTime = minimumTime;
         MaximumTime = maximumTime;
+        RepsCompleted = 0;
         RequiredNumberOfReps = aRequiredNumberOfReps;
         
-    } 
+    }
 
     
 
     public void StartExercise()
     {
-        // Observer Pattern ** In the future ** Notify Observers
+        
         Debug.Log("Exercise Started");
+        ChangeState(new IdleState());
         NotifySquatStarted();
 
     }
     public void DoExercise()
     {
-         
-        
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (currentState != null)
         {
-            animator.Play("SquatDescent");
-            Debug.Log("Player started Squat");
-            Debug.Log($"Min {MinimumTime}, Max {MaximumTime}");
-            IsSquatting = true;
-            animator.SetInteger("SquatAnimationType", - 1); // Reset Squat Animation Type each rep;
-            animator.SetBool("IsSquattingDescent",true);
-            SquatTimer = 0f;
-
-             
-
+            currentState.UpdateState(this);
         }
-        if(Input.GetKey(KeyCode.Space) && IsSquatting == true)
-        {
-
-            Debug.Log(SquatTimer);
-            animator.SetBool("PassedDescent", false);
-            SquatTimer += Time.deltaTime;
-            
-        }
-        
-        if (Input.GetKeyUp(KeyCode.Space))
-        {
-            Debug.Log("Squat Released");
-            Debug.Log($"Squat Time Released: {SquatTimer}");
-            animator.SetBool("IsSquattingDescent", false);
-            if (IsSuccessful())
-            {
-                
-                Debug.Log("Squat passed!");
-                Debug.Log($"Squat Time Released: {SquatTimer}");
-                Debug.Log($"Min {MinimumTime}, Max {MaximumTime}");
-
-
-                animationStrategy = DetermineSquatAnimationStrategy();
-                animationStrategy.PlayAnimation(animator,this);
-
-                RepsCompleted++;
-                NotifySquatCompleted();
-            }
-            else
-            {
-                animator.SetBool("PassedDescent", false);
-            }
-            EndExercise();
-        }
-        
-
 
     }
     public bool IsSuccessful()
     {
-        return SquatTimer > MinimumTime && SquatTimer < MaximumTime;
+        if(LiftTimer > MinimumTime && LiftTimer < MaximumTime)
+        {
+            RepsCompleted++;
+            NotifySquatCompleted();
+            
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+            
         
     
     }
@@ -128,7 +94,6 @@ public class SquatMiniGame : IExerciseMiniGame {
         if(RepsCompleted == RequiredNumberOfReps)
         {
             Debug.Log("Set Completed!");
-            animator.Play("Idle");
             NotifySetCompleted();
         }
     }
@@ -138,8 +103,18 @@ public class SquatMiniGame : IExerciseMiniGame {
     
 
     public void Initialize() { }
-
-    private ISquatAnimationStrategy DetermineSquatAnimationStrategy()
+    public void ChangeState(ILiftState newState)
+    {
+        // If the CurrentState is not null, use the CurrentStates ExitState method
+        if (currentState != null)
+        {
+            currentState.ExitState(this);
+        }
+        // Set the current state to the new state that was changed by the UpdateState method 
+        currentState = newState;
+        currentState.EnterState(this);
+    }
+    public void DetermineLiftAnimationStrategy()
     {
         float range = MaximumTime - MinimumTime;
         float segment = range / 3f;
@@ -147,19 +122,19 @@ public class SquatMiniGame : IExerciseMiniGame {
         float averageThreshold = MinimumTime + (2 * segment);
         Debug.Log($"Good Squat Threshold: {fastThreshold}");
         Debug.Log($"Average Threshold: {averageThreshold}");
-        if (SquatTimer <= fastThreshold)
+        if (LiftTimer <= fastThreshold)
         {
-            return new GoodSquatAnimationStrategy();
+            this.animationStrategy = new GoodSquatAnimationStrategy();
             
         }
-        else if(SquatTimer <= averageThreshold)
+        else if(LiftTimer <= averageThreshold)
         {
-            return new AverageSquatAnimationStrategy();
+            this.animationStrategy = new AverageSquatAnimationStrategy();
             
         }
         else
         {
-            return new SlowSquatAnimationStrategy();
+            this.animationStrategy = new SlowSquatAnimationStrategy();
            
         }
     }

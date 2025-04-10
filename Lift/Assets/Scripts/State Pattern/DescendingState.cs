@@ -2,17 +2,33 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DescendingState : MonoBehaviour
+public class DescendingState : ILiftState
 {
-    // Start is called before the first frame update
-    void Start()
+    public void EnterState(IExerciseMiniGame exercise)
     {
-        
+        Debug.Log("Entering Descending State!");
+    }
+    public void UpdateState(IExerciseMiniGame exercise)
+    {
+        if (Input.GetKey(KeyCode.Space))
+        {
+
+            Debug.Log(exercise.LiftTimer);
+            exercise.animator.SetBool("PassedDescent", false);
+            exercise.LiftTimer += Time.deltaTime;
+        }
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            Debug.Log("Squat Released");
+            Debug.Log($"Squat Time Released: {exercise.LiftTimer}");
+            exercise.animator.SetBool("IsSquattingDescent", false);
+            exercise.ChangeState(new ConcentricState());
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+
+    public void ExitState(IExerciseMiniGame exercise)
     {
-        
+        Debug.Log("Exiting Descending State!");
     }
 }

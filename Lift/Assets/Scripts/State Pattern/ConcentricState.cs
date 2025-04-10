@@ -2,17 +2,39 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ConcentricState : MonoBehaviour
+public class ConcentricState : ILiftState
 {
-    // Start is called before the first frame update
-    void Start()
+    public void EnterState(IExerciseMiniGame exercise)
     {
-        
+        Debug.Log("Entering Concentric State!");
     }
-
-    // Update is called once per frame
-    void Update()
+    public void UpdateState(IExerciseMiniGame exercise)
     {
+        if (exercise.IsSuccessful())
+        {
+            Debug.Log("REPS COMPLETED: " + exercise.RepsCompleted);
+            
+            
+            Debug.Log("Squat passed!");
+            Debug.Log($"Squat Time Released: {exercise.LiftTimer}");
+            Debug.Log($"Min {exercise.MinimumTime}, Max {exercise.MaximumTime}");
+
+
+            exercise.DetermineLiftAnimationStrategy();
+            exercise.animationStrategy.PlayAnimation(exercise.animator,exercise);
+
+            
+            
+        }
+        else
+        {
+            exercise.animator.SetBool("PassedDescent", false);
+        }
         
+        exercise.ChangeState(new IdleState());
+    }
+    public void ExitState(IExerciseMiniGame exercise)
+    {
+        Debug.Log("Exiting Concentric State!");
     }
 }

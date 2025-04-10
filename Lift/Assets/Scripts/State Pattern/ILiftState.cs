@@ -4,11 +4,10 @@ using UnityEngine;
 
 public interface ILiftState 
 {
-    public void EnterState(IExerciseMiniGame MiniGame);
+    public void EnterState(IExerciseMiniGame exercise);
     
-    public void UpdateState(IExerciseMiniGame MiniGame);
+    public void UpdateState(IExerciseMiniGame exercise);
 
-
-    public void ExitState(IExerciseMiniGame MiniGame);
+    public void ExitState(IExerciseMiniGame exercise);
     
 }

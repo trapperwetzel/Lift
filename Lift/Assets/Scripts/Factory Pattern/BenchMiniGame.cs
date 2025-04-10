@@ -10,10 +10,12 @@ public class BenchMiniGame : IExerciseMiniGame {
 
     public int RequiredNumberOfReps { get; set; }
     public int RepsCompleted { get; set; }
-
-    private float MinimumTime;
-    private float MaximumTime;
+    public float LiftTimer { get; set; }
+    public float MinimumTime { get; set; }
+    public float MaximumTime { get; set; }
     public string QualityOfLift { get; set; }
+
+    public ILiftAnimationStrategy animationStrategy { get; set; }
 
 
     public BenchMiniGame(Animator animator, float minimumTime, float maximumTime, int aRequiredNumberOfReps)
@@ -45,6 +47,12 @@ public class BenchMiniGame : IExerciseMiniGame {
 
     }
     private readonly List<ILiftObserver> liftobservers = new List<ILiftObserver>();
+
+
+    public void ChangeState(ILiftState newState)
+    {
+
+    }
     public void AddObserver(ILiftObserver observer)
     {
         if (!liftobservers.Contains(observer))
@@ -61,6 +69,9 @@ public class BenchMiniGame : IExerciseMiniGame {
         }
     }
 
+    public void DetermineLiftAnimationStrategy()
+    {
 
+    }
 }
 

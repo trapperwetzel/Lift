@@ -2,12 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GoodSquatAnimationStrategy : ISquatAnimationStrategy
+public class GoodSquatAnimationStrategy : ILiftAnimationStrategy
 {
-    public void PlayAnimation(Animator animator, SquatMiniGame aSquatMiniGame)
+    public void PlayAnimation(Animator animator, IExerciseMiniGame aMiniGame)
     {
         animator.SetInteger("SquatAnimationType", 1);
-        aSquatMiniGame.QualityOfLift = "Good";
+        aMiniGame.QualityOfLift = "Good";
         Debug.Log("Good Squat Achieved!");
     }
 }
