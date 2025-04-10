@@ -67,6 +67,7 @@ public class SquatMiniGame : IExerciseMiniGame {
         if (currentState != null)
         {
             currentState.UpdateState(this);
+            EndExercise();
         }
 
     }
