@@ -63,6 +63,7 @@ public class ExerciseMiniGameManager : MonoBehaviour
             return baseMiniGame;
             case 1: // Easy Mode
             Debug.Log("Selected Easy Game");
+            
             return new EasyModeDecorator(baseMiniGame); //
             case 2: // Hard Mode
             Debug.Log("Selected Hard Game");

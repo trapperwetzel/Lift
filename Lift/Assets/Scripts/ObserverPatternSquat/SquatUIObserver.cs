@@ -12,6 +12,8 @@ public class SquatUIObserver : MonoBehaviour, ILiftObserver
     [SerializeField] private TextMeshProUGUI SquatTitle;
     public IExerciseMiniGame exerciseMiniGame { get; set; }
 
+
+
     
     public void OnLiftStarted()
     {
