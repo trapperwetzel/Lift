@@ -10,7 +10,7 @@ public class SquatUIObserver : MonoBehaviour, ILiftObserver
     [SerializeField] private TextMeshProUGUI RepsLeftText;
     [SerializeField] private TextMeshProUGUI SquatFeedBack;
     [SerializeField] private TextMeshProUGUI SquatTitle;
-    public IExerciseMiniGame exerciseMiniGame { get; set; }
+   // public IExerciseMiniGame exerciseMiniGame { get; set; }
 
 
 
@@ -18,27 +18,41 @@ public class SquatUIObserver : MonoBehaviour, ILiftObserver
     public void OnLiftStarted()
     {
         SquatTitle.text = "Barbell Back Squat";
-        RepsLeftText.text = $"Total Reps to Complete: {exerciseMiniGame.RequiredNumberOfReps} reps";
+        var miniGame = ExerciseMiniGameManager.Instance.CurrentMiniGame;
+        if (miniGame != null)
+        {
+            RepsLeftText.text = $"Total Reps to Complete: {miniGame.RequiredNumberOfReps} reps";
+        }
+        
 
 
     }
 
     public void OnLiftCompleted()
     {
-        QualityOfRepText.text = $"Squat Quality: {exerciseMiniGame.QualityOfLift} Squat";
-        SquatFeedBack.text = $"Completed Reps: {exerciseMiniGame.RepsCompleted}";
-
-        int RepsLeft = exerciseMiniGame.RequiredNumberOfReps - exerciseMiniGame.RepsCompleted;
-        RepsLeftText.text = $"Reps remaining: {RepsLeft}";
-
-        // Start a coroutine that will clear the text after 2 seconds
-        StartCoroutine(RemoveQualityTextAfterDelay(1f));
+        var miniGame = ExerciseMiniGameManager.Instance.CurrentMiniGame;
+        if (miniGame != null)
+        {
+            Debug.Log($"Mini-Game Type: {miniGame.LiftType}, Reps: {miniGame.RepsCompleted}");
+            QualityOfRepText.text = $"Squat Quality: {miniGame.QualityOfLift} Squat";
+            SquatFeedBack.text = $"Completed Reps: {miniGame.RepsCompleted}";
+            int RepsLeft = miniGame.RequiredNumberOfReps - miniGame.RepsCompleted;
+            RepsLeftText.text = $"Reps remaining: {RepsLeft}";
+            StartCoroutine(RemoveQualityTextAfterDelay(1f));
+        }
     }
 
     public void OnSetCompleted()
     {
         SquatFeedBack.text = "Set Completed! Great Work!";
-
+        if(ExerciseMiniGameManager.Instance != null)
+        {
+            ExerciseMiniGameManager.Instance.startButton.gameObject.SetActive(true);
+        }
+        else
+        {
+            Debug.LogWarning("ExerciseMiniGameManager instance is null.");
+        }
     }
 
     private IEnumerator RemoveQualityTextAfterDelay(float delay)
