@@ -7,7 +7,7 @@ public class DeadliftMiniGame : IExerciseMiniGame
 {
     public Animator animator {get; set;}
     public ExerciseType LiftType => ExerciseType.Deadlift;
-
+    public bool PressCommand { get; set; }
     public int RequiredNumberOfReps { get; set; }
     public int RepsCompleted { get; set; }
     public float LiftTimer { get; set; }
@@ -24,7 +24,12 @@ public class DeadliftMiniGame : IExerciseMiniGame
         
     }
 
+    public void IssuePressCommand() { }
     public void StartExercise()
+    {
+
+    }
+    public void Reset()
     {
 
     }
@@ -44,6 +49,10 @@ public class DeadliftMiniGame : IExerciseMiniGame
     {
 
     }
+    public void GivenPressCommand()
+    {
+    }
+    
     private readonly List<ILiftObserver> liftobservers = new List<ILiftObserver>();
     public void ChangeState(ILiftState newState)
     {

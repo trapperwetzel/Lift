@@ -2,34 +2,29 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
-// Prevent other classes inheriting from ExerciseMiniGameManager
-public sealed class ExerciseMiniGameManager : MonoBehaviour
-{
-    // Singleton Instance
-
+public sealed class ExerciseMiniGameManager : MonoBehaviour {
     public static ExerciseMiniGameManager Instance { get; private set; }
     private IExerciseMiniGame currentMiniGame;
-    public IExerciseMiniGame CurrentMiniGame => currentMiniGame; // Property to access current minigame. 
-
+    public IExerciseMiniGame CurrentMiniGame => currentMiniGame;
 
     private ExerciseMiniGameFactory factory = new ExerciseMiniGameFactory();
+    private GameFacade gameFacade;
 
     [SerializeField] private Animator animator;
-    
-     private float minTime = 2.1f;
-     private float maxTime = 5f;
-     private int RequiredReps = 5;
-   // [SerializeField] private ExerciseType currentExercise = ExerciseType.Squat;
-    [SerializeField] private TMP_Dropdown exerciseDropdown;
+    private float minTime = 2.1f;
+    private float maxTime = 5f;
+    private int RequiredReps = 5;
+    ExerciseType exerciseType;
+
     [SerializeField] private TMP_Dropdown setTypeDropdown;
     [SerializeField] public Button startButton;
-    [SerializeField] private SquatUIObserver squatUIObserver;
-    // These two above can be added to the observer.
+    [SerializeField] private LiftUIObserver liftUIObserver;
+
     private void Awake()
     {
-        // Singleton Setup
-        if(Instance == null)
+        if (Instance == null)
         {
             Instance = this;
             Debug.Log("Singleton Instance set: " + Instance.name);
@@ -40,34 +35,42 @@ public sealed class ExerciseMiniGameManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-        
-        // Populate exercise type dropdown
-        exerciseDropdown.ClearOptions();
-        exerciseDropdown.AddOptions(new List<string> { "Squat", "Bench", "Deadlift" });
 
-        // Populate set type dropdown
+        string sceneName = SceneManager.GetActiveScene().name;
+        if (sceneName == "SquatDay")
+        {
+            exerciseType = ExerciseType.Squat;
+        }
+        else
+        {
+            exerciseType = ExerciseType.Bench;
+        }
+
         setTypeDropdown.ClearOptions();
         setTypeDropdown.AddOptions(new List<string> { "Normal", "Easy Mode", "Hard Mode", "Strength Set", "BodyBuilding Set" });
+        setTypeDropdown.interactable = true;
 
-        // Add listener to the Start button
-        startButton.onClick.AddListener(OnStartButtonClicked);
+        // Save the CSV file in Assets/Scripts/AdapterPattern
+        string filePath = System.IO.Path.Combine(Application.dataPath, "Scripts", "AdapterPattern", "game_stats.csv");
+        Debug.Log($"[ExerciseMiniGameManager] CSV file path: {filePath}");
+        ISaveData saveData = new CsvFileSaveAdapter(filePath);
+        GameStatsLogger statsLogger = new GameStatsLogger(saveData);
+
+        gameFacade = new GameFacade(this, liftUIObserver, statsLogger);
+        liftUIObserver.SetGameFacade(gameFacade, filePath);
+
+        startButton.onClick.AddListener(() => gameFacade.StartSet());
     }
 
-    private void OnStartButtonClicked()
+    public void OnStartButtonClicked()
     {
-        // Map dropdown value to ExerciseType
-        ExerciseType selectedExercise = (ExerciseType)exerciseDropdown.value;
-
-        // Create the base mini-game
-        IExerciseMiniGame baseMiniGame = factory.CreateMiniGame(selectedExercise, animator, minTime, maxTime, RequiredReps);
-
-        // Apply the selected set type decorator
+        IExerciseMiniGame baseMiniGame = factory.CreateMiniGame(exerciseType, animator, minTime, maxTime, RequiredReps);
         currentMiniGame = ApplySetTypeDecorator(baseMiniGame, setTypeDropdown.value);
 
-        // Set up Observer 
-        currentMiniGame.AddObserver(squatUIObserver);
+        currentMiniGame.AddObserver(liftUIObserver);
         currentMiniGame.Initialize();
-        startButton.gameObject.SetActive(false); // Disable button instead of destroying it
+        startButton.gameObject.SetActive(false);
+        setTypeDropdown.interactable = false;
 
         currentMiniGame.StartExercise();
     }
@@ -76,22 +79,21 @@ public sealed class ExerciseMiniGameManager : MonoBehaviour
     {
         switch (setTypeIndex)
         {
-            case 0: // Normal (no decorator)
+            case 0:
             Debug.Log("Selected Normal Game");
             return baseMiniGame;
-            case 1: // Easy Mode
-            Debug.Log("Selected Easy Game");
-            
-            return new EasyModeDecorator(baseMiniGame); //
-            case 2: // Hard Mode
-            Debug.Log("Selected Hard Game");
-            return new HardModeDecorator(baseMiniGame); // 
-            case 3: // Strength Set
+            case 1:
+            Debug.Log("Selected Easy Mode");
+            return new EasyModeDecorator(baseMiniGame);
+            case 2:
+            Debug.Log("Selected Hard Mode");
+            return new HardModeDecorator(baseMiniGame);
+            case 3:
             Debug.Log("Selected Strength Set");
-            return new StrengthSetDecorator(baseMiniGame); // Sets reps to 3
-            case 4: // BodyBuilding Set
+            return new StrengthSetDecorator(baseMiniGame);
+            case 4:
             Debug.Log("Selected BodyBuilding Set");
-            return new BodyBuildingSetDecorator(baseMiniGame); // Sets reps to 10
+            return new BodyBuildingSetDecorator(baseMiniGame);
             default:
             Debug.LogWarning("Unknown set type selected, using base mini-game.");
             return baseMiniGame;
@@ -100,20 +102,38 @@ public sealed class ExerciseMiniGameManager : MonoBehaviour
 
     public void Update()
     {
-        if (currentMiniGame != null)
-        {
-            currentMiniGame.DoExercise();
-        }
+        gameFacade.UpdateSet();
     }
 
+    public void ResetGame()
+    {
+        if (currentMiniGame != null)
+        {
+            currentMiniGame.RemoveObserver(liftUIObserver);
+            currentMiniGame.Reset();
+            currentMiniGame = null;
+        }
+
+        if (startButton != null)
+        {
+            startButton.gameObject.SetActive(true);
+            Debug.Log("[ExerciseMiniGameManager] Start button re-enabled.");
+        }
+        else
+        {
+            Debug.LogWarning("[ExerciseMiniGameManager] Start button is null!");
+        }
+
+        if (setTypeDropdown != null)
+        {
+            setTypeDropdown.interactable = true;
+            Debug.Log("[ExerciseMiniGameManager] Dropdown re-enabled.");
+        }
+        else
+        {
+            Debug.LogWarning("[ExerciseMiniGameManager] Dropdown is null!");
+        }
+
+        Debug.Log("Game reset, ready for new set.");
+    }
 }
-
-
-
-    
-
-    
-
-    
-
-    

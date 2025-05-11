@@ -20,7 +20,7 @@ public class SquatAscendingState : ILiftState {
 
             exercise.DetermineLiftAnimationStrategy();
             exercise.animationStrategy.PlayAnimation(exercise.animator, exercise);
-
+            exercise.EndExercise();
 
 
         }
@@ -31,7 +31,7 @@ public class SquatAscendingState : ILiftState {
 
         exercise.ChangeState(new SquatIdleState());
 
-        
+
     }
 
     public void ExitState(IExerciseMiniGame exercise)
@@ -39,4 +39,3 @@ public class SquatAscendingState : ILiftState {
         Debug.Log($"Exiting Ascending State for {exercise.LiftType}!");
     }
 }
-

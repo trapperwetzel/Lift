@@ -2,8 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SquatDescendingState : ILiftState
-{
+public class SquatDescendingState : ILiftState {
     public void EnterState(IExerciseMiniGame exercise)
     {
         Debug.Log($"Entering Descending State for {exercise.LiftType}!");
@@ -11,8 +10,8 @@ public class SquatDescendingState : ILiftState
 
     public void UpdateState(IExerciseMiniGame exercise)
     {
-      
-        
+
+
         if (Input.GetKey(KeyCode.Space))
         {
             //Debug.Log(exercise.LiftTimer);
@@ -28,7 +27,7 @@ public class SquatDescendingState : ILiftState
             exercise.animator.SetBool("IsSquattingDescent", false);
             exercise.ChangeState(new SquatAscendingState());
         }
-        
+
     }
 
 

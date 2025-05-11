@@ -4,5 +4,14 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/MainMenu.unity
+    guid: 3055ea70204946c45832431c48e853b8
+  - enabled: 1
+    path: Assets/BenchDay.unity
+    guid: 69e5f5ecc5f4df043b07a527405eb6cc
+  - enabled: 1
+    path: Assets/Scenes/SquatDay.unity
+    guid: f3b1bdd669b465547ab2fb69f7363911
   m_configObjects: {}
